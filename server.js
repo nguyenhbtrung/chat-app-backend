@@ -1,6 +1,9 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const http = require('http'); // Import http
+const socketServer = require('./socketServer'); // Import signaling server
+
 const app = express();
 
 // Middleware
@@ -12,8 +15,14 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/users', require('./routes/user'));
 app.use('/api/files', require('./routes/file'));
 
+// Tạo server HTTP
+const server = http.createServer(app);
+
+// Tích hợp Socket.IO vào server HTTP
+socketServer(server);
+
 // Start server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
