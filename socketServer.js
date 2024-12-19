@@ -12,10 +12,6 @@ module.exports = (server) => {
 
     io.on("connection", (socket) => {
         console.log("New client connected:", socket.id);
-        // io.to(socket.id).emit("peerId", { peerId: socket.id });
-        // socket.on("hello", ({ peerId }) => {
-        //     io.to(peerId).emit("hello", { peerIdSend: socket.id, peerIdRecv: peerId });
-        // });
 
         socket.on("register", (username) => {
             activeSockets.set(socket.id, { username });
@@ -36,6 +32,10 @@ module.exports = (server) => {
 
         socket.on("connection-accepted", ({ to }) => {
             io.to(to).emit("connection-accepted", { from: socket.id });
+        });
+
+        socket.on("connection-rejected", ({ to }) => {
+            io.to(to).emit("connection-rejected", { from: socket.id });
         });
 
         socket.on("connection-succesful", ({ remote }) => {
