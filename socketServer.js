@@ -30,8 +30,8 @@ module.exports = (server) => {
             io.to(socket.id).emit("get-active-users", [...activeSockets.entries()]);
         });
 
-        socket.on("request-connection", (peerId) => {
-            io.to(peerId).emit("request-connection", { from: socket.id });
+        socket.on("request-connection", ({ peerId, requestUsername }) => {
+            io.to(peerId).emit("request-connection", { from: socket.id, username: requestUsername });
         });
 
         socket.on("connection-accepted", ({ to }) => {
