@@ -26,6 +26,10 @@ module.exports = (server) => {
             io.emit("active-users", [...activeSockets.entries()]); // Cập nhật danh sách người dùng online
         });
 
+        socket.on("get-active-users", () => {
+            io.to(socket.id).emit("get-active-users", [...activeSockets.entries()]);
+        });
+
         socket.on("request-connection", (peerId) => {
             io.to(peerId).emit("request-connection", { from: socket.id });
         });
