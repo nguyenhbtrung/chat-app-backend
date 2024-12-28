@@ -34,18 +34,32 @@ module.exports = (server) => {
             io.to(peerId).emit("request-connection", { from: socket.id, username: requestUsername });
         });
 
+        socket.on("request-video-call", ({ peerId, requestUsername }) => {
+            io.to(peerId).emit("request-video-call", { from: socket.id, username: requestUsername });
+        });
+
         socket.on("connection-accepted", ({ to }) => {
             io.to(to).emit("connection-accepted", { from: socket.id });
+        });
+
+        socket.on("video-call-accepted", ({ to }) => {
+            io.to(to).emit("video-call-accepted", { from: socket.id });
         });
 
         socket.on("connection-rejected", ({ to }) => {
             io.to(to).emit("connection-rejected", { from: socket.id });
         });
 
+        socket.on("video-call-rejected", ({ to }) => {
+            io.to(to).emit("video-call-rejected", { from: socket.id });
+        });
+
+
         socket.on("connection-succesful", ({ remote }) => {
             // console.log();
             io.to(socket.id).emit("connection-succesful", { remote: remote });
         });
+
 
         socket.on("peer-disconnected", ({ remote }) => {
             // console.log();
@@ -59,9 +73,17 @@ module.exports = (server) => {
             io.to(to).emit("offer", { offer, from: socket.id });
         });
 
+        socket.on("renegotiate-offer", ({ offer, to }) => {
+            io.to(to).emit("renegotiate-offer", { offer, from: socket.id });
+        });
+
         // Khi peer trả lời offer
         socket.on("answer", ({ answer, to }) => {
             io.to(to).emit("answer", { answer, from: socket.id });
+        });
+
+        socket.on("renegotiate-answer", ({ answer, to }) => {
+            io.to(to).emit("renegotiate-answer", { answer, from: socket.id });
         });
 
         // Khi peer gửi candidate ICE
