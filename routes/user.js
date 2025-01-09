@@ -1,16 +1,15 @@
 const express = require('express');
-const { sql, poolPromise } = require('../db');
+const pool = require('../db');
 const authenticate = require('../middleware/auth');
 const router = express.Router();
 
 router.get('/online', authenticate, async (req, res) => {
     try {
-        const pool = await poolPromise;
         const result = await pool.query(
-            "SELECT id, username FROM Users WHERE is_online = 1 AND id != @id",
-            { id: req.user.id }
+            'SELECT id, username FROM Users WHERE is_online = true AND id != $1',
+            [req.user.id]
         );
-        res.json(result.recordset);
+        res.json(result.rows);
     } catch (err) {
         res.status(500).send(err.message);
     }
@@ -19,12 +18,10 @@ router.get('/online', authenticate, async (req, res) => {
 router.post('/update-status', authenticate, async (req, res) => {
     const { isOnline } = req.body;
     try {
-        const pool = await poolPromise;
-        await pool
-            .request()
-            .input('id', sql.Int, req.user.id)
-            .input('is_online', sql.Bit, isOnline)
-            .query('UPDATE Users SET is_online = @is_online WHERE id = @id');
+        await pool.query(
+            'UPDATE Users SET is_online = $1 WHERE id = $2',
+            [isOnline, req.user.id]
+        );
         res.send('Status updated');
     } catch (err) {
         res.status(500).send(err.message);
