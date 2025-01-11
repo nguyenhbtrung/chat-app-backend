@@ -14,6 +14,7 @@ app.use(express.json());
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/users', require('./routes/user'));
 app.use('/api/files', require('./routes/file'));
+app.use('/api/ice-servers', require('./routes/iceServers'));
 
 // Tạo server HTTP
 const server = http.createServer(app);
