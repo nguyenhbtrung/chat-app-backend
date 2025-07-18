@@ -1,12 +1,32 @@
 {
+  "name": "chat-app-backend",
+  "version": "2.0.0",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "lint": "eslint . --fix"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
   "dependencies": {
-    "bcryptjs": "^2.4.3",
+    "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.7",
-    "express": "^4.21.2",
+    "dotenv": "^17.2.0",
+    "express": "^5.1.0",
+    "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
-    "msnodesqlv8": "^4.4.0",
-    "mssql": "^11.0.1",
+    "morgan": "^1.10.1",
+    "mysql2": "^3.14.2",
+    "sequelize": "^6.37.7",
     "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "eslint": "^9.31.0",
+    "nodemon": "^3.1.10"
   }
 }
