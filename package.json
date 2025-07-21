@@ -23,6 +23,7 @@
     "morgan": "^1.10.1",
     "mysql2": "^3.14.2",
     "sequelize": "^6.37.7",
+    "sequelize-cli": "^6.6.3",
     "socket.io": "^4.8.1"
   },
   "devDependencies": {
