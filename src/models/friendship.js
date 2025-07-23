@@ -1,33 +1,45 @@
-import sequelize from "../config/database.js";
+'use strict';
+import { Model } from 'sequelize';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const { FRIENDSHIP_STATUS } = require('../constants.cjs');
 
-const FRIENDSHIP_STATUS = ['pending', 'accepted', 'rejected', 'blocked'];
+export default (sequelize, DataTypes) => {
+    class Friendship extends Model {
 
-const Friendship = sequelize.define('Friendship', {
-    requester_id: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        primaryKey: true,
-        references: {
-            model: 'Users',
-            key: 'id',
+        static associate(models) {
+            // define association here
+        }
+    }
+    Friendship.init({
+        requesterId: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            primaryKey: true,
+            references: {
+                model: 'Users',
+                key: 'id',
+            },
+            onDelete: 'CASCADE',
         },
-        onDelete: 'CASCADE',
-    },
-    addressee_id: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        primaryKey: true,
-        references: {
-            model: 'Users',
-            key: 'id',
+        addresseeId: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            primaryKey: true,
+            references: {
+                model: 'Users',
+                key: 'id',
+            },
+            onDelete: 'CASCADE',
         },
-        onDelete: 'CASCADE',
-    },
-    status: {
-        type: DataTypes.ENUM(...FRIENDSHIP_STATUS),
-        allowNull: false,
-        defaultValue: 'pending',
-    },
-});
-
-export default Friendship;
+        status: {
+            type: DataTypes.ENUM(...FRIENDSHIP_STATUS),
+            allowNull: false,
+            defaultValue: 'pending',
+        },
+    }, {
+        sequelize,
+        modelName: 'Friendship',
+    });
+    return Friendship;
+};

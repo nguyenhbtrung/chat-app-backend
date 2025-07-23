@@ -1,41 +1,48 @@
-import { DataTypes } from "sequelize";
-import sequelize from "../config/database.js";
+'use strict';
+import { Model } from 'sequelize';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const { MESSAGE_TYPE } = require('../constants.cjs');
 
-const MESSAGE_TYPE = ['text', 'file', 'image'];
+export default (sequelize, DataTypes) => {
+    class Message extends Model {
 
-const Message = sequelize.define('Message', {
-    id: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
-        primaryKey: true,
-    },
-    sender_id: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-            model: 'Users',
-            key: 'id',
+        static associate(models) {
+            Message.belongsTo(models.User, { foreignKey: 'senderId', as: 'sender' });
+            Message.belongsTo(models.User, { foreignKey: 'receiverId', as: 'receiver' });
+        }
+    }
+    Message.init({
+        senderId: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'Users',
+                key: 'id',
+            },
+            onDelete: 'CASCADE',
         },
-        onDelete: 'CASCADE',
-    },
-    receiver_id: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-            model: 'Users',
-            key: 'id',
+        receiverId: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'Users',
+                key: 'id',
+            },
+            onDelete: 'CASCADE',
         },
-        onDelete: 'CASCADE',
-    },
-    content: {
-        type: DataTypes.TEXT,
-        allowNull: false,
-    },
-    type: {
-        type: DataTypes.ENUM(...MESSAGE_TYPE),
-        allowNull: false,
-        defaultValue: 'text',
-    },
-});
-
-export default Message;
+        content: {
+            type: DataTypes.TEXT,
+            allowNull: false,
+        },
+        type: {
+            type: DataTypes.ENUM(...MESSAGE_TYPE),
+            allowNull: false,
+            defaultValue: 'text',
+        },
+    }, {
+        sequelize,
+        modelName: 'Message',
+    });
+    return Message;
+};

@@ -1,17 +1,53 @@
-import sequelize from "../config/database.js";
-import Friendship from "./friendship.js";
-import Message from "./message.js";
-import User from "./user.js";
+import fs from 'fs';
+import path from 'path';
+import { Sequelize, DataTypes } from 'sequelize';
+import dotenv from 'dotenv';
+import databaseConfig from '../config/database.js';
+import { fileURLToPath, pathToFileURL } from 'url';
+
+dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const basename = path.basename(__filename);
+const env = process.env.NODE_ENV || 'development';
+const config = databaseConfig[env];
+const db = {};
+
+let sequelize;
+if (config.use_env_variable) {
+  sequelize = new Sequelize(process.env[config.use_env_variable], config);
+} else {
+  sequelize = new Sequelize(config.database, config.username, config.password, config);
+}
+
+const files = fs.readdirSync(__dirname).filter(file => {
+  return (
+    file.indexOf('.') !== 0 &&
+    file !== basename &&
+    file.slice(-3) === '.js' &&
+    file.indexOf('.test.js') === -1
+  );
+});
+
+for (const file of files) {
 
 
-User.hasMany(Message, { foreignKey: 'sender_id', as: 'sentMessages' });
-Message.belongsTo(User, { foreignKey: 'sender_id', as: 'sender' });
+  const fileUrl = pathToFileURL(path.join(__dirname, file));
+  const { default: modelDefiner } = await import(fileUrl.href);
 
+  const model = modelDefiner(sequelize, DataTypes);
+  db[model.name] = model;
+}
 
-User.hasMany(Message, { foreignKey: 'receiver_id', as: 'receivedMessages' });
-Message.belongsTo(User, { foreignKey: 'receiver_id', as: 'receiver' });
+for (const modelName of Object.keys(db)) {
+  if (db[modelName].associate) {
+    db[modelName].associate(db);
+  }
+}
 
-User.belongsToMany(User, { through: Friendship, foreignKey: 'requester_id', otherKey: 'addressee_id', as: 'addressees' });
-User.belongsToMany(User, { through: Friendship, foreignKey: 'addressee_id', otherKey: 'requester_id', as: 'requesters' });
+db.sequelize = sequelize;
+db.Sequelize = Sequelize;
 
-export { sequelize, User, Message, Friendship };
+export default db;

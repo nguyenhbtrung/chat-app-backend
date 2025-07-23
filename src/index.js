@@ -5,6 +5,7 @@ import cors from "cors";
 import morgan from "morgan";
 import authRoutes from "./routes/authRoutes.js";
 import errorHandler from "./middleware/errorHandler.js";
+import db from "./models/index.js"
 
 dotenv.config();
 
@@ -15,7 +16,7 @@ app.use(cors());
 app.use(json());
 app.use(morgan('dev'));
 
-app.use("/auth", authRoutes);
+app.use("/api/auth", authRoutes);
 
 app.use(errorHandler);
 
@@ -23,7 +24,7 @@ const PORT = process.env.PORT || 8080;
 
 (async () => {
     try {
-        await sequelize.authenticate();
+        await db.sequelize.authenticate();
         console.log('✅ Database connected');
         app.listen(PORT, () => console.log(`🚀 Server listening on http://localhost:${PORT}`));
     } catch (err) {
