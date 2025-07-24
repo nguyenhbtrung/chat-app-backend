@@ -1,6 +1,11 @@
 import bcrypt from 'bcryptjs';
 import db from '../models/index.js';
 import { Op } from 'sequelize';
+import { generateToken } from '../utils/auth.js';
+import {
+    AppError,
+    InvalidLoginError
+} from '../errors/index.js';
 
 export const registerAsync = async ({ userName, password, email }) => {
     try {
@@ -11,12 +16,13 @@ export const registerAsync = async ({ userName, password, email }) => {
         });
 
         if (existingUser) {
-            const duplicatedField = existingUser.email === email ? 'email' : 'userName';
-            const error = new Error(`${duplicatedField} already exists`);
-            error.code = duplicatedField === 'email' ? 'DUPLICATE_EMAIL' : 'DUPLICATE_USERNAME';
-            error.statusCode = 409;
-            error.fields = { [duplicatedField]: `${duplicatedField} already exists` };
-            throw error;
+            const duplicatedField = existingUser.userName === userName ? 'userName' : 'email';
+            throw new AppError(
+                `${duplicatedField} already exists`,
+                duplicatedField === 'email' ? 'DUPLICATE_EMAIL' : 'DUPLICATE_USERNAME',
+                409,
+                { [duplicatedField]: `${duplicatedField} already exists` }
+            );
         }
 
         const passwordHash = await bcrypt.hash(password, 10);
@@ -26,4 +32,28 @@ export const registerAsync = async ({ userName, password, email }) => {
     } catch (err) {
         throw err;
     }
+};
+
+export const loginAsync = async ({ userName, password }) => {
+    try {
+        const existingUser = await db.User.findOne({ where: { userName } });
+        if (!existingUser)
+            throw new InvalidLoginError();
+
+        const isValidPassword = await bcrypt.compare(password, existingUser.passwordHash);
+        if (!isValidPassword)
+            throw new InvalidLoginError();
+
+        const user = {
+            id: existingUser.id,
+            userName,
+            email: existingUser.email
+        };
+        const token = generateToken(user);
+        return { user, token };
+
+    } catch (error) {
+        throw error;
+    }
+
 };
