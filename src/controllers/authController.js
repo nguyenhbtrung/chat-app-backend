@@ -1,5 +1,3 @@
-import bcrypt from "bcryptjs";
-import db from "../models/index.js";
 import { registerAsync } from "../services/authService.js";
 
 export const register = async (req, res, next) => {

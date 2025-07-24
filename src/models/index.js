@@ -1,11 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import { Sequelize, DataTypes } from 'sequelize';
-import dotenv from 'dotenv';
 import databaseConfig from '../config/database.js';
 import { fileURLToPath, pathToFileURL } from 'url';
-
-dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
