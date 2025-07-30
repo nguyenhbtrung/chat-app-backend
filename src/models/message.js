@@ -10,6 +10,7 @@ export default (sequelize, DataTypes) => {
         static associate(models) {
             Message.belongsTo(models.User, { foreignKey: 'senderId', as: 'sender' });
             Message.belongsTo(models.User, { foreignKey: 'receiverId', as: 'receiver' });
+            Message.belongsTo(models.File, { foreignKey: 'fileId', as: 'file' });
         }
     }
     Message.init({
@@ -31,6 +32,16 @@ export default (sequelize, DataTypes) => {
             },
             onDelete: 'CASCADE',
         },
+        fileId: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+            references: {
+                model: 'Files',
+                key: 'id'
+            },
+            onUpdate: 'CASCADE',
+            onDelete: 'SET NULL'
+        },
         content: {
             type: DataTypes.TEXT,
             allowNull: false,
@@ -39,6 +50,11 @@ export default (sequelize, DataTypes) => {
             type: DataTypes.ENUM(...MESSAGE_TYPE),
             allowNull: false,
             defaultValue: 'text',
+        },
+        revoked: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false,
         },
     }, {
         sequelize,

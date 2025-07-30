@@ -1,41 +1,29 @@
 'use strict';
-
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Messages', {
+    await queryInterface.createTable('Files', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      senderId: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: 'Users',
-          key: 'id',
-        },
-        onDelete: 'CASCADE',
-      },
-      receiverId: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: 'Users',
-          key: 'id',
-        },
-        onDelete: 'CASCADE',
-      },
-      content: {
-        type: Sequelize.TEXT,
+      url: {
+        type: Sequelize.STRING,
         allowNull: false,
       },
-      type: {
-        type: Sequelize.ENUM('text', 'file', 'image'),
+      name: {
+        type: Sequelize.STRING,
         allowNull: false,
-        defaultValue: 'text',
+      },
+      size: {
+        type: Sequelize.INTEGER.UNSIGNED,
+        allowNull: false,
+      },
+      mimeType: {
+        type: Sequelize.STRING,
+        allowNull: false,
       },
       createdAt: {
         allowNull: false,
@@ -48,6 +36,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Messages');
+    await queryInterface.dropTable('Files');
   }
 };

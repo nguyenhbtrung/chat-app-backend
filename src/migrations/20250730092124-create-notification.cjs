@@ -1,39 +1,45 @@
 'use strict';
-
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Friendships', {
+    await queryInterface.createTable('Notifications', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      requesterId: {
+      userId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        primaryKey: true,
         references: {
           model: 'Users',
-          key: 'id',
+          key: 'id'
         },
+        onUpdate: 'CASCADE',
         onDelete: 'CASCADE',
       },
-      addresseeId: {
+      senderId: {
         type: Sequelize.INTEGER,
-        allowNull: false,
-        primaryKey: true,
+        allowNull: true,
         references: {
           model: 'Users',
-          key: 'id',
+          key: 'id'
         },
-        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL',
       },
-      status: {
-        type: Sequelize.ENUM('pending', 'accepted', 'rejected', 'blocked'),
+      type: {
+        type: Sequelize.ENUM('friend_request_accepted', 'friend_request_rejected'),
         allowNull: false,
-        defaultValue: 'pending',
+      },
+      content: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      isRead: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
       },
       createdAt: {
         allowNull: false,
@@ -46,6 +52,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Friendships');
+    await queryInterface.dropTable('Notifications');
   }
 };

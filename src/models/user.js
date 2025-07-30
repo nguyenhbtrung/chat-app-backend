@@ -7,6 +7,7 @@ export default (sequelize, DataTypes) => {
             User.hasMany(models.Message, { foreignKey: 'receiverId', as: 'receivedMessages' });
             User.belongsToMany(User, { through: models.Friendship, foreignKey: 'requesterId', otherKey: 'addresseeId', as: 'addressees' });
             User.belongsToMany(User, { through: models.Friendship, foreignKey: 'addresseeId', otherKey: 'requesterId', as: 'requesters' });
+            User.belongsTo(models.File, { foreignKey: 'avatarImgId', as: 'avatar' });
         }
     }
     User.init({
@@ -29,10 +30,16 @@ export default (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: true,
         },
-        avatarUrl: {
-            type: DataTypes.STRING,
+        avatarImgId: {
+            type: DataTypes.INTEGER,
             allowNull: true,
-        },
+            references: {
+                model: 'Files',
+                key: 'id'
+            },
+            onUpdate: 'CASCADE',
+            onDelete: 'SET NULL'
+        }
     }, {
         sequelize,
         modelName: 'User',
