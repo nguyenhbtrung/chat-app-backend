@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { login, register } from "../controllers/authController.js";
 import { validate } from "../middleware/validate.js";
-import { loginSchema, registerSchema } from "../validators/authValidator.js";
+import { loginSchema, registerSchema } from "chat-app-zod-schema";
 
 const router = Router();
 
