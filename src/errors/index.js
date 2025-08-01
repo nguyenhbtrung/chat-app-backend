@@ -1,3 +1,3 @@
 export { AppError } from './appError.js';
 
-export { InvalidLoginError } from './custom/invalidLoginError.js'
+export { InvalidCredentialsError } from './custom/invalidCredentialsError.js'

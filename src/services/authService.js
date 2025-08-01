@@ -4,7 +4,7 @@ import { Op } from 'sequelize';
 import { generateToken } from '../utils/auth.js';
 import {
     AppError,
-    InvalidLoginError
+    InvalidCredentialsError
 } from '../errors/index.js';
 
 export const registerAsync = async ({ userName, password, email }) => {
@@ -38,11 +38,11 @@ export const loginAsync = async ({ userName, password }) => {
     try {
         const existingUser = await db.User.findOne({ where: { userName } });
         if (!existingUser)
-            throw new InvalidLoginError();
+            throw new InvalidCredentialsError();
 
         const isValidPassword = await bcrypt.compare(password, existingUser.passwordHash);
         if (!isValidPassword)
-            throw new InvalidLoginError();
+            throw new InvalidCredentialsError();
 
         const user = {
             id: existingUser.id,
