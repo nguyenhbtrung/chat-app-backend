@@ -56,6 +56,11 @@ export default (sequelize, DataTypes) => {
             allowNull: false,
             defaultValue: false,
         },
+        seen: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false,
+        }
     }, {
         sequelize,
         modelName: 'Message',
