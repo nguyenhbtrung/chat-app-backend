@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { login, register } from "../controllers/authController.js";
+import { login, register } from "../controllers/auth.controller.js";
 import { validate } from "../middleware/validate.js";
 import { loginSchema, registerSchema } from "chat-app-zod-schema";
 import expressAsyncHandler from "express-async-handler";
