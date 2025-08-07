@@ -4,6 +4,7 @@ import helmet from "helmet";
 import cors from "cors";
 import morgan from "morgan";
 import authRoutes from "./routes/auth.routes.js";
+import chatRoutes from "./routes/chat.routes.js";
 import errorHandler from "./middleware/errorHandler.js";
 import db from "./models/index.js"
 import { createServer } from "http";
@@ -27,6 +28,7 @@ app.use(json());
 app.use(morgan('dev'));
 
 app.use("/api/auth", authRoutes);
+app.use("/api/chats", chatRoutes);
 
 app.use(errorHandler);
 
