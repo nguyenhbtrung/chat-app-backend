@@ -1,4 +1,3 @@
-// middlewares/authMiddleware.js
 import { verifyToken } from '../utils/auth.js';
 
 export const requireAuth = (req, res, next) => {
