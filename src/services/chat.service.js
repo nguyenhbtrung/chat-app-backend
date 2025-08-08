@@ -1,33 +1,47 @@
 import db from '../models/index.js';
-import { getAllChatsWithLatestMessagesQuery } from '../queries/chat.queries.js';
+import { getAllChatsWithLatestMessagesQuery, getFriendChatsWithLatestMessagesQuery } from '../queries/chat.queries.js';
 import { userSocketMap } from '../socket/index.js';
-import { unflattenObject } from '../utils/objectUtils.js';
 
 const { sequelize } = db;
 
+const mapOnline = (onlineUserIds, userKey) => item => ({
+    ...item,
+    online: onlineUserIds.includes(item?.[userKey]?.id),
+});
+
+
 export const getAllChatsAsync = async (userId, page = 1, limit = 10) => {
     const offset = (page - 1) * limit;
+    const onlineUserIds = Object.keys(userSocketMap)
+        .map(id => parseInt(id))
 
     try {
         const results = await sequelize.query(getAllChatsWithLatestMessagesQuery, {
             replacements: { userId, limit, offset },
-            type: sequelize.QueryTypes.SELECT
+            type: sequelize.QueryTypes.SELECT,
+            nest: true
         });
 
-        const onlineUserIds = Object.keys(userSocketMap)
-            .map(id => parseInt(id))
-        console.log("Check online users", onlineUserIds);
-        return results.map(item => {
-            const obj = unflattenObject(item);
-            obj.online = onlineUserIds.includes(obj?.otherUser?.id);
-            return obj;
-        });
+        return results.map(mapOnline(onlineUserIds, 'otherUser'));
     } catch (error) {
         console.error('Error in getAllChatsAsync:', error);
         throw new Error('Failed to fetch chats');
     }
 };
 
-export const getOnlineUser = async (userId, page = 1, limit = 10) => {
-
+export const getFriendChatsAsync = async (userId, page = 1, limit = 10) => {
+    const offset = (page - 1) * limit;
+    const onlineUserIds = Object.keys(userSocketMap)
+        .map(id => parseInt(id))
+    try {
+        const results = await sequelize.query(getFriendChatsWithLatestMessagesQuery, {
+            replacements: { userId, limit, offset },
+            type: sequelize.QueryTypes.SELECT,
+            nest: true
+        });
+        return results.map(mapOnline(onlineUserIds, 'friend'));
+    } catch (error) {
+        console.error('Error in getFriendChatsAsync:', error);
+        throw new Error('Failed to fetch chats');
+    }
 };
