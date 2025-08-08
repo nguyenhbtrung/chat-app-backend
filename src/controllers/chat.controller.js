@@ -4,7 +4,8 @@ export const getAllChats = async (req, res, next) => {
     const userId = req.user.id || 0;
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
-    const data = await getAllChatsAsync(userId, page, limit);
+    const search = req.query.search;
+    const data = await getAllChatsAsync(userId, page, limit, search);
     res.status(200).json({ data });
 };
 
@@ -12,7 +13,8 @@ export const getFriendChats = async (req, res, next) => {
     const userId = req.user.id || 0;
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
-    const data = await getFriendChatsAsync(userId, page, limit);
+    const search = req.query.search;
+    const data = await getFriendChatsAsync(userId, page, limit, search);
     res.status(200).json({ data });
 };
 

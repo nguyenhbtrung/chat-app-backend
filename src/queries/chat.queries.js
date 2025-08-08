@@ -42,6 +42,7 @@ export const getAllChatsWithLatestMessagesQuery = `
                       ELSE lm.senderId
                    END
         LEFT JOIN Files f ON u.avatarImgId = f.id
+        WHERE COALESCE(u.displayName, u.userName) LIKE CONCAT('%', :search, '%')
         ORDER BY lm.createdAt DESC
         LIMIT :limit OFFSET :offset
     `;
@@ -111,6 +112,7 @@ export const getFriendChatsWithLatestMessagesQuery = `
     ON fr.friendId = u.id
     LEFT JOIN files f
     ON u.avatarImgId = f.id
+    WHERE COALESCE(u.displayName, u.userName) LIKE CONCAT('%', :search, '%')
     ORDER BY lm.createdAt DESC, fr.becomeFriendAt DESC
     LIMIT :limit OFFSET :offset;
     `;
