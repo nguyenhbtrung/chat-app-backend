@@ -24,7 +24,6 @@ export const getAllChatsAsync = async (userId, page = 1, limit = 10, search = ''
 
         return results.map(mapOnline(onlineUserIds, 'otherUser'));
     } catch (error) {
-        console.error('Error in getAllChatsAsync:', error);
         throw new Error('Failed to fetch chats');
     }
 };
@@ -41,7 +40,6 @@ export const getFriendChatsAsync = async (userId, page = 1, limit = 10, search =
         });
         return results.map(mapOnline(onlineUserIds, 'friend'));
     } catch (error) {
-        console.error('Error in getFriendChatsAsync:', error);
         throw new Error('Failed to fetch chats');
     }
 };
