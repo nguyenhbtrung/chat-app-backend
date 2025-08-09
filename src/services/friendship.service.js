@@ -1,6 +1,7 @@
 import db from '../models/index.js';
-import { AlreadyFriendsError, BlockedUserError, CannotFriendYourselfError, FriendRequestAlreadySentError, FriendRequestPendingError } from "../errors/custom/addFriendError.js";
+import { AlreadyFriendsError, BlockedUserError, CannotFriendYourselfError, FriendRequestAlreadySentError, FriendRequestPendingError, FriendshipDeleteBlockedError } from '../errors/index.js';
 import { Op, where } from 'sequelize';
+import { FriendshipNotFoundError } from '../errors/index.js';
 
 const { Friendship } = db;
 
@@ -53,7 +54,36 @@ export const addFriendAsync = async (fromUserId, toUserId) => {
                 });
         }
     } catch (error) {
-        console.error('Error in addFriendAsync:', error);
+        throw error;
+    }
+};
+
+export const deleteFriendshipAsync = async (userId, friendId) => {
+    try {
+        const friendship = await Friendship.findOne({
+            where: {
+                [Op.or]: [
+                    {
+                        requesterId: userId,
+                        addresseeId: friendId,
+                    },
+                    {
+                        requesterId: friendId,
+                        addresseeId: userId,
+                    },
+                ],
+            },
+        });
+
+        if (!friendship)
+            throw new FriendshipNotFoundError();
+
+        if (friendship.status === 'blocked')
+            throw new FriendshipDeleteBlockedError();
+
+        return await friendship.destroy();
+
+    } catch (error) {
         throw error;
     }
 };
