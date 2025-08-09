@@ -2,6 +2,7 @@ import db from '../models/index.js';
 import { AlreadyFriendsError, BlockedUserError, CannotFriendYourselfError, FriendRequestAlreadySentError, FriendRequestPendingError, FriendshipDeleteBlockedError } from '../errors/index.js';
 import { Op, where } from 'sequelize';
 import { FriendshipNotFoundError } from '../errors/index.js';
+import { InvalidFriendshipStatusError } from '../errors/custom/updateFriendshipError.js';
 
 const { Friendship } = db;
 
@@ -82,6 +83,73 @@ export const deleteFriendshipAsync = async (userId, friendId) => {
             throw new FriendshipDeleteBlockedError();
 
         return await friendship.destroy();
+
+    } catch (error) {
+        throw error;
+    }
+};
+
+export const updateFriendshipAsync = async (userId, friendId, status) => {
+    try {
+        const friendship = await Friendship.findOne({
+            where: {
+                [Op.or]: [
+                    {
+                        requesterId: userId,
+                        addresseeId: friendId,
+                    },
+                    {
+                        requesterId: friendId,
+                        addresseeId: userId,
+                    },
+                ],
+            },
+        });
+
+        if (!friendship)
+            throw new FriendshipNotFoundError();
+
+        let isStatusValid = true;
+
+        switch (friendship.status) {
+            case 'pending':
+                console.log(">>>userId", userId);
+                console.log(">>>userId", friendship.addresseeId);
+                console.log(">>>userId", (status === 'accepted' || status === 'rejected') && userId !== friendship.addresseeId);
+                if ((status === 'accepted' || status === 'rejected') && userId !== friendship.addresseeId)
+                    isStatusValid = false;
+                else if (status === 'cancelled' && userId !== friendship.requesterId)
+                    isStatusValid = false;
+                break;
+
+            case 'accepted':
+                if (status === 'pending' || status === 'rejected' || status === 'cancelled')
+                    isStatusValid = false;
+                break;
+
+            case 'rejected':
+                if (status === 'accepted' || status === 'cancelled')
+                    isStatusValid = false;
+                break;
+
+            case 'cancelled':
+                if (status === 'accepted' || status === 'rejected')
+                    isStatusValid = false;
+                break;
+
+            case 'blocked':
+                if (status !== 'blocked')
+                    isStatusValid = false;
+                break;
+
+            default:
+                break;
+        }
+
+        if (!isStatusValid)
+            throw new InvalidFriendshipStatusError();
+
+        return await friendship.update({ status });
 
     } catch (error) {
         throw error;
