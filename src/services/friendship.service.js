@@ -113,9 +113,6 @@ export const updateFriendshipAsync = async (userId, friendId, status) => {
 
         switch (friendship.status) {
             case 'pending':
-                console.log(">>>userId", userId);
-                console.log(">>>userId", friendship.addresseeId);
-                console.log(">>>userId", (status === 'accepted' || status === 'rejected') && userId !== friendship.addresseeId);
                 if ((status === 'accepted' || status === 'rejected') && userId !== friendship.addresseeId)
                     isStatusValid = false;
                 else if (status === 'cancelled' && userId !== friendship.requesterId)

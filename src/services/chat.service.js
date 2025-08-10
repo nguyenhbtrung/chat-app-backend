@@ -1,8 +1,9 @@
+import { Op, where } from 'sequelize';
 import db from '../models/index.js';
 import { getAllChatsWithLatestMessagesQuery, getFriendChatsWithLatestMessagesQuery } from '../queries/chat.queries.js';
 import { userSocketMap } from '../socket/index.js';
 
-const { sequelize } = db;
+const { sequelize, Message, File } = db;
 
 const mapOnline = (onlineUserIds, userKey) => item => ({
     ...item,
@@ -24,7 +25,7 @@ export const getAllChatsAsync = async (userId, page = 1, limit = 10, search = ''
 
         return results.map(mapOnline(onlineUserIds, 'otherUser'));
     } catch (error) {
-        throw new Error('Failed to fetch chats');
+        throw error
     }
 };
 
@@ -40,6 +41,42 @@ export const getFriendChatsAsync = async (userId, page = 1, limit = 10, search =
         });
         return results.map(mapOnline(onlineUserIds, 'friend'));
     } catch (error) {
-        throw new Error('Failed to fetch chats');
+        throw error;
+    }
+};
+
+export const getChatAsync = async (userId, otherUserId, page = 1, limit = 10) => {
+    const offset = (page - 1) * limit;
+
+    try {
+        const chat = await Message.findAll({
+            attributes: ['id', 'senderId', 'receiverId', 'content', 'type', 'revoked', 'seen', 'createdAt', 'updatedAt'],
+            where: {
+                [Op.or]: [
+                    {
+                        senderId: userId,
+                        receiverId: otherUserId,
+                    },
+                    {
+                        senderId: otherUserId,
+                        receiverId: userId,
+                    },
+                ],
+            },
+            include: [
+                {
+                    model: File,
+                    as: 'file',
+                    attributes: ['id', 'url', 'name', 'size', 'mimeType']
+                }
+            ],
+            order: [['createdAt', 'DESC']],
+            limit,
+            offset,
+        });
+
+        return chat;
+    } catch (error) {
+        throw error;
     }
 };
