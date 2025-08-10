@@ -12,6 +12,37 @@ const registerHandlers = (socket) => {
         userSocketMap[userId].add(socket.id);
         socket.userId = userId;
         console.log(">>>userSocketMap: ", userSocketMap);
+        io.to(`watch:${userId}`).emit('presence_update', {
+            userId,
+            isOnline: true,
+        });
+    });
+
+    socket.on('watch_users', (userIds) => {
+        userIds.forEach(userId => {
+            socket.join(`watch:${userId}`);
+        });
+    });
+    socket.on('unwatch_users', (userIds) => {
+        userIds.forEach(userId => {
+            socket.leave(`watch:${userId}`);
+        });
+    });
+
+    socket.on('disconnect', () => {
+        console.log(`Client disconnected: ${socket.id}`);
+        const userId = socket.userId;
+        if (userSocketMap[userId]) {
+            userSocketMap[userId].delete(socket.id);
+            if (userSocketMap[userId].size === 0) {
+                delete userSocketMap[userId];
+
+                io.to(`watch:${userId}`).emit('presence_update', {
+                    userId,
+                    isOnline: false,
+                });
+            }
+        }
     });
 };
 
@@ -25,10 +56,6 @@ export const initSocket = (httpServer) => {
         console.log(`New client connected: ${socket.id}`);
 
         registerHandlers(socket);
-
-        socket.on('disconnect', () => {
-            console.log(`Client disconnected: ${socket.id}`);
-        });
 
     });
 
