@@ -87,6 +87,7 @@ export const getFriendChatsWithLatestMessagesQuery = `
                     WHEN requesterId = :userId THEN addresseeId
                     WHEN addresseeId = :userId THEN requesterId
                 END AS friendId,
+                status,
                 updatedAt AS becomeFriendAt
             FROM friendships
             WHERE (requesterId = :userId OR addresseeId = :userId) AND status = 'accepted'
@@ -101,11 +102,12 @@ export const getFriendChatsWithLatestMessagesQuery = `
             lm.createdAt,
             lm.revoked,
             lm.seen,
-            u.id AS \`friend.id\`,
-            u.displayName AS \`friend.displayName\`,
-            u.userName AS \`friend.userName\`,
-            f.url AS \`friend.avatarUrl\`,
-            fr.becomeFriendAt AS \`friend.becomeFriendAt\`
+            u.id AS \`otherUser.id\`,
+            u.displayName AS \`otherUser.displayName\`,
+            u.userName AS \`otherUser.userName\`,
+            f.url AS \`otherUser.avatarUrl\`,
+            fr.becomeFriendAt AS \`otherUser.becomeFriendAt\`,
+            fr.status AS \`otherUser.friendshipStatus\`
         FROM friends fr
         LEFT JOIN latest_messages lm
         ON fr.friendId = CASE 
