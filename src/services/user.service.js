@@ -28,7 +28,7 @@ export const getNonFriendOnlineUsersAsync = async (userId, page = 1, limit = 10)
                 attributes: [],
                 on: {
                     [Op.and]: [
-                        { status: 'accepted' },
+                        { status: { [Op.in]: ['accepted', 'pending', 'blocked'] } },
                         {
                             [Op.or]: [
                                 { requesterId: userId, addresseeId: { [Op.col]: 'User.id' } },
