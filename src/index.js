@@ -4,6 +4,7 @@ import helmet from "helmet";
 import cors from "cors";
 import morgan from "morgan";
 import authRoutes from "./routes/auth.routes.js";
+import userRoutes from "./routes/user.routes.js";
 import chatRoutes from "./routes/chat.routes.js";
 import friendshipRoutes from "./routes/friendship.routes.js";
 import errorHandler from "./middleware/errorHandler.js";
@@ -29,6 +30,7 @@ app.use(json());
 app.use(morgan('dev'));
 
 app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
 app.use("/api/chats", chatRoutes);
 app.use("/api/friendships", friendshipRoutes);
 

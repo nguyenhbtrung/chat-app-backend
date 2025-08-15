@@ -14,7 +14,7 @@ const mapOnline = (onlineUserIds, userKey) => item => ({
 export const getAllChatsAsync = async (userId, page = 1, limit = 10, search = '') => {
     const offset = (page - 1) * limit;
     const onlineUserIds = Object.keys(userSocketMap)
-        .map(id => parseInt(id))
+        .map(id => parseInt(id));
 
     try {
         const results = await sequelize.query(getAllChatsWithLatestMessagesQuery, {
@@ -32,7 +32,7 @@ export const getAllChatsAsync = async (userId, page = 1, limit = 10, search = ''
 export const getFriendChatsAsync = async (userId, page = 1, limit = 10, search = '') => {
     const offset = (page - 1) * limit;
     const onlineUserIds = Object.keys(userSocketMap)
-        .map(id => parseInt(id))
+        .map(id => parseInt(id));
     try {
         const results = await sequelize.query(getFriendChatsWithLatestMessagesQuery, {
             replacements: { userId, limit, offset, search },

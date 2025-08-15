@@ -5,6 +5,8 @@ export default (sequelize, DataTypes) => {
         static associate(models) {
             User.hasMany(models.Message, { foreignKey: 'senderId', as: 'sentMessages' });
             User.hasMany(models.Message, { foreignKey: 'receiverId', as: 'receivedMessages' });
+            User.hasMany(models.Friendship, { foreignKey: 'requesterId', as: 'friendshipRelation' });
+
             User.belongsToMany(User, { through: models.Friendship, foreignKey: 'requesterId', otherKey: 'addresseeId', as: 'addressees' });
             User.belongsToMany(User, { through: models.Friendship, foreignKey: 'addresseeId', otherKey: 'requesterId', as: 'requesters' });
             User.belongsTo(models.File, { foreignKey: 'avatarImgId', as: 'avatar' });
