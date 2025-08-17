@@ -17,17 +17,13 @@ export const getAllChatsAsync = async (userId, page = 1, limit = 10, search = ''
         .map(id => parseInt(id));
     search = search.trim();
 
-    try {
-        const results = await sequelize.query(getAllChatsWithLatestMessagesQuery, {
-            replacements: { userId, limit, offset, search },
-            type: sequelize.QueryTypes.SELECT,
-            nest: true
-        });
+    const results = await sequelize.query(getAllChatsWithLatestMessagesQuery, {
+        replacements: { userId, limit, offset, search },
+        type: sequelize.QueryTypes.SELECT,
+        nest: true
+    });
 
-        return results.map(mapOnline(onlineUserIds, 'otherUser'));
-    } catch (error) {
-        throw error
-    }
+    return results.map(mapOnline(onlineUserIds, 'otherUser'));
 };
 
 export const getFriendChatsAsync = async (userId, page = 1, limit = 10, search = '') => {
@@ -36,50 +32,42 @@ export const getFriendChatsAsync = async (userId, page = 1, limit = 10, search =
         .map(id => parseInt(id));
     search = search.trim();
 
-    try {
-        const results = await sequelize.query(getFriendChatsWithLatestMessagesQuery, {
-            replacements: { userId, limit, offset, search },
-            type: sequelize.QueryTypes.SELECT,
-            nest: true
-        });
-        return results.map(mapOnline(onlineUserIds, 'friend'));
-    } catch (error) {
-        throw error;
-    }
+    const results = await sequelize.query(getFriendChatsWithLatestMessagesQuery, {
+        replacements: { userId, limit, offset, search },
+        type: sequelize.QueryTypes.SELECT,
+        nest: true
+    });
+    return results.map(mapOnline(onlineUserIds, 'friend'));
 };
 
 export const getChatAsync = async (userId, otherUserId, page = 1, limit = 10) => {
     const offset = (page - 1) * limit;
 
-    try {
-        const chat = await Message.findAll({
-            attributes: ['id', 'senderId', 'receiverId', 'content', 'type', 'revoked', 'seen', 'createdAt', 'updatedAt'],
-            where: {
-                [Op.or]: [
-                    {
-                        senderId: userId,
-                        receiverId: otherUserId,
-                    },
-                    {
-                        senderId: otherUserId,
-                        receiverId: userId,
-                    },
-                ],
-            },
-            include: [
+    const chat = await Message.findAll({
+        attributes: ['id', 'senderId', 'receiverId', 'content', 'type', 'revoked', 'seen', 'createdAt', 'updatedAt'],
+        where: {
+            [Op.or]: [
                 {
-                    model: File,
-                    as: 'file',
-                    attributes: ['id', 'url', 'name', 'size', 'mimeType']
-                }
+                    senderId: userId,
+                    receiverId: otherUserId,
+                },
+                {
+                    senderId: otherUserId,
+                    receiverId: userId,
+                },
             ],
-            order: [['createdAt', 'DESC']],
-            limit,
-            offset,
-        });
+        },
+        include: [
+            {
+                model: File,
+                as: 'file',
+                attributes: ['id', 'url', 'name', 'size', 'mimeType']
+            }
+        ],
+        order: [['createdAt', 'DESC']],
+        limit,
+        offset,
+    });
 
-        return chat;
-    } catch (error) {
-        throw error;
-    }
+    return chat;
 };
