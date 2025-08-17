@@ -144,40 +144,70 @@ export const updateFriendshipAsync = async (userId, friendId, status) => {
     return await friendship.update({ status });
 };
 
-export const getFriendshipsAsync = async (userId, status, page = 1, limit = 10, search = '') => {
+export const getFriendshipsAsync = async (userId, status, sent, received, page = 1, limit = 10, search = '') => {
 
-    if (status && !FRIENDSHIP_STATUS.includes(status)) {
+    if (status && !FRIENDSHIP_STATUS.includes(status))
         throw new InvalidFriendshipStatusError();
+
+    if (!sent && !received)
+        return [];
+
+    const orConditions = [];
+    const include = [];
+
+    if (sent) {
+
+        orConditions.push({
+            [Op.and]: [
+                { requesterId: userId },
+                where(
+                    fn('COALESCE',
+                        col('addressee.displayName'),
+                        col('addressee.userName')
+                    ),
+                    { [Op.substring]: search.trim() }
+                )
+            ]
+        });
+
+
+        include.push({
+            model: User,
+            as: 'addressee',
+            attributes: [
+                'id', 'userName', 'displayName',
+                [literal('`addressee->avatar`.`url`'), 'avatarUrl']
+            ],
+            include: { model: File, as: 'avatar', attributes: [] },
+        });
     }
 
-    const conditions = {
-        [Op.or]: [
-            {
-                [Op.and]: [
-                    { requesterId: userId },
-                    where(
-                        fn('COALESCE',
-                            col('addressee.displayName'),
-                            col('addressee.userName')
-                        ),
-                        { [Op.substring]: search.trim() }
-                    )
-                ]
-            },
-            {
-                [Op.and]: [
-                    { addresseeId: userId },
-                    where(
-                        fn('COALESCE',
-                            col('requester.displayName'),
-                            col('requester.userName')
-                        ),
-                        { [Op.substring]: search.trim() }
-                    )
-                ]
-            }
-        ]
-    };
+    if (received) {
+        orConditions.push({
+            [Op.and]: [
+                { addresseeId: userId },
+                where(
+                    fn('COALESCE',
+                        col('requester.displayName'),
+                        col('requester.userName')
+                    ),
+                    { [Op.substring]: search.trim() }
+                )
+            ]
+        });
+
+        include.push({
+            model: User,
+            as: 'requester',
+            attributes: [
+                'id', 'userName', 'displayName',
+                [literal('`requester->avatar`.`url`'), 'avatarUrl']
+            ],
+            include: { model: File, as: 'avatar', attributes: [] },
+        });
+    }
+
+    const conditions = { [Op.or]: orConditions };
 
 
     if (status) {
@@ -190,29 +220,7 @@ export const getFriendshipsAsync = async (userId, status, page = 1, limit = 10, 
         where: conditions,
         limit,
         offset,
-        include: [
-            {
-                model: User,
-                as: 'requester',
-                attributes: ['id', 'userName', 'displayName', [literal('`requester->avatar`.`url`'), 'avatarUrl']],
-                include: {
-                    model: File,
-                    as: 'avatar',
-                    attributes: [],
-                },
-            },
-            {
-                model: User,
-                as: 'addressee',
-                attributes: ['id', 'userName', 'displayName', [literal('`addressee->avatar`.`url`'), 'avatarUrl']],
-                include: {
-                    model: File,
-                    as: 'avatar',
-                    attributes: [],
-                },
-            },
-        ],
-
+        include,
         order: [['updatedAt', 'DESC']]
     });
 
