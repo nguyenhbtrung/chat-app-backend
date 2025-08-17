@@ -1,10 +1,14 @@
 import db from '../models/index.js';
 import { AlreadyFriendsError, BlockedUserError, CannotFriendYourselfError, FriendRequestAlreadySentError, FriendRequestPendingError, FriendshipDeleteBlockedError } from '../errors/index.js';
-import { Op, where } from 'sequelize';
+import { col, fn, literal, Op, where } from 'sequelize';
 import { FriendshipNotFoundError } from '../errors/index.js';
 import { InvalidFriendshipStatusError } from '../errors/custom/updateFriendshipError.js';
+import { createRequire } from 'module';
 
-const { Friendship } = db;
+const require = createRequire(import.meta.url);
+const { FRIENDSHIP_STATUS } = require('../constants.cjs');
+
+const { Friendship, User, File } = db;
 
 export const addFriendAsync = async (fromUserId, toUserId) => {
     if (fromUserId === toUserId)
@@ -151,4 +155,89 @@ export const updateFriendshipAsync = async (userId, friendId, status) => {
     } catch (error) {
         throw error;
     }
+};
+
+export const getFriendshipsAsync = async (userId, status, page = 1, limit = 10, search = '') => {
+
+    if (status && !FRIENDSHIP_STATUS.includes(status)) {
+        throw new InvalidFriendshipStatusError();
+    }
+
+    const conditions = {
+        [Op.or]: [
+            {
+                [Op.and]: [
+                    { requesterId: userId },
+                    where(
+                        fn('COALESCE',
+                            col('addressee.displayName'),
+                            col('addressee.userName')
+                        ),
+                        { [Op.substring]: search.trim() }
+                    )
+                ]
+            },
+            {
+                [Op.and]: [
+                    { addresseeId: userId },
+                    where(
+                        fn('COALESCE',
+                            col('requester.displayName'),
+                            col('requester.userName')
+                        ),
+                        { [Op.substring]: search.trim() }
+                    )
+                ]
+            }
+        ]
+    };
+
+
+    if (status) {
+        conditions.status = status;
+    }
+
+    const offset = (page - 1) * limit;
+
+    const friendships = await Friendship.findAll({
+        where: conditions,
+        limit,
+        offset,
+        include: [
+            {
+                model: User,
+                as: 'requester',
+                attributes: ['id', 'userName', 'displayName', [literal('`requester->avatar`.`url`'), 'avatarUrl']],
+                include: {
+                    model: File,
+                    as: 'avatar',
+                    attributes: [],
+                },
+            },
+            {
+                model: User,
+                as: 'addressee',
+                attributes: ['id', 'userName', 'displayName', [literal('`addressee->avatar`.`url`'), 'avatarUrl']],
+                include: {
+                    model: File,
+                    as: 'avatar',
+                    attributes: [],
+                },
+            },
+        ],
+
+        order: [['updatedAt', 'DESC']]
+    });
+
+    return friendships.map(f => {
+        const otherUser = f.requesterId === userId ? f.addressee : f.requester;
+        return {
+            userId: otherUser.id,
+            userName: otherUser.userName,
+            displayName: otherUser.displayName,
+            avatarUrl: otherUser.get('avatarUrl'),
+            status: f.status,
+            updatedAt: f.updatedAt,
+        };
+    });
 };

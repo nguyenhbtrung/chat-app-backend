@@ -8,7 +8,16 @@ export default (sequelize, DataTypes) => {
     class Friendship extends Model {
 
         static associate(models) {
-            // define association here
+            Friendship.belongsTo(models.User, {
+                as: 'requester',
+                foreignKey: 'requesterId'
+            });
+
+            Friendship.belongsTo(models.User, {
+                as: 'addressee',
+                foreignKey: 'addresseeId'
+            });
+
         }
     }
     Friendship.init({
