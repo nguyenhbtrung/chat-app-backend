@@ -85,6 +85,35 @@ export const deleteFriendshipAsync = async (userId, friendId) => {
     return await friendship.destroy();
 };
 
+export const deleteAllFriendshipsAsync = async (userId, status, sent, received) => {
+    if (status && !FRIENDSHIP_STATUS.includes(status))
+        throw new InvalidFriendshipStatusError();
+
+    if (!sent && !received)
+        return;
+
+    const orConditions = [];
+
+    if (sent) {
+        orConditions.push({
+            requesterId: userId,
+        });
+    }
+
+    if (received) {
+        orConditions.push({
+            addresseeId: userId,
+        });
+    }
+
+    const conditions = { [Op.or]: orConditions };
+    if (status) {
+        conditions.status = status;
+    }
+
+    return await Friendship.destroy({ where: conditions });
+};
+
 export const updateFriendshipAsync = async (userId, friendId, status) => {
     const friendship = await Friendship.findOne({
         where: {
@@ -208,7 +237,6 @@ export const getFriendshipsAsync = async (userId, status, sent, received, page =
     }
 
     const conditions = { [Op.or]: orConditions };
-
 
     if (status) {
         conditions.status = status;

@@ -1,4 +1,4 @@
-import { addFriendAsync, deleteFriendshipAsync, getFriendshipsAsync, updateFriendshipAsync } from "../services/friendship.service.js";
+import { addFriendAsync, deleteAllFriendshipsAsync, deleteFriendshipAsync, getFriendshipsAsync, updateFriendshipAsync } from "../services/friendship.service.js";
 import { parseBool } from "../utils/parse.js";
 
 export const addFriend = async (req, res, next) => {
@@ -12,6 +12,20 @@ export const deleteFriendship = async (req, res, next) => {
     const userId = req.user.id;
     const friendId = req.params.friendId;
     await deleteFriendshipAsync(userId, friendId);
+    res.sendStatus(204);
+};
+
+export const deleteAllFriendships = async (req, res, next) => {
+    const userId = req.user.id;
+    const status = req.query.status;
+    let sent = req.query.sent;
+    let received = req.query.received;
+
+    const all = sent === undefined && received === undefined;
+    sent = all ? true : parseBool(sent);
+    received = all ? true : parseBool(received);
+
+    await deleteAllFriendshipsAsync(userId, status, sent, received);
     res.sendStatus(204);
 };
 
