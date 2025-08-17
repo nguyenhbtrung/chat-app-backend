@@ -45,7 +45,7 @@ export const getAllNonFriendUsersAsync = async (userId, page = 1, limit = 10, se
                             col('User.displayName'),
                             col('User.userName')
                         ),
-                        { [Op.substring]: search }
+                        { [Op.substring]: search.trim() }
                     )
                 ],
             },
