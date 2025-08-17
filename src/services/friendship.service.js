@@ -173,6 +173,19 @@ export const updateFriendshipAsync = async (userId, friendId, status) => {
     return await friendship.update({ status });
 };
 
+export const rejectAllFriendRequestsAsync = async (userId) => {
+    const [affectedCount] = await Friendship.update(
+        { status: 'rejected' },
+        {
+            where: {
+                addresseeId: userId,
+                status: 'pending',
+            },
+        },
+    );
+    return affectedCount;
+};
+
 export const getFriendshipsAsync = async (userId, status, sent, received, page = 1, limit = 10, search = '') => {
 
     if (status && !FRIENDSHIP_STATUS.includes(status))

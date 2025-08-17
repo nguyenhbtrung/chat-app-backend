@@ -2,7 +2,7 @@ import { Router } from "express";
 import { validate } from "../middleware/validate.js";
 import { addFriendSchema, updateFriendshipSchema } from "chat-app-zod-schema";
 import expressAsyncHandler from "express-async-handler";
-import { addFriend, deleteAllFriendships, deleteFriendship, getFriendships, updateFriendship } from "../controllers/friendship.controller.js";
+import { addFriend, deleteAllFriendships, deleteFriendship, getFriendships, rejectAllFriendRequests, updateFriendship } from "../controllers/friendship.controller.js";
 import { requireAuth } from "../middleware/auth.js";
 
 const router = Router();
@@ -12,6 +12,7 @@ router.post('/', validate(addFriendSchema), expressAsyncHandler(addFriend));
 router.delete('/:friendId', expressAsyncHandler(deleteFriendship));
 router.delete('/', expressAsyncHandler(deleteAllFriendships));
 router.put('/:friendId', validate(updateFriendshipSchema), expressAsyncHandler(updateFriendship));
+router.put('/requests/reject-all', expressAsyncHandler(rejectAllFriendRequests));
 router.get('/', expressAsyncHandler(getFriendships));
 
 export default router;
