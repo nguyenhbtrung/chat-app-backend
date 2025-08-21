@@ -7,6 +7,7 @@ import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import chatRoutes from "./routes/chat.routes.js";
 import friendshipRoutes from "./routes/friendship.routes.js";
+import notificationRoutes from "./routes/notification.routes.js";
 import errorHandler from "./middleware/errorHandler.js";
 import db from "./models/index.js"
 import { createServer } from "http";
@@ -33,6 +34,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/chats", chatRoutes);
 app.use("/api/friendships", friendshipRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 app.use(errorHandler);
 

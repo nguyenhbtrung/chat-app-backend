@@ -6,6 +6,6 @@ import { getNotifications } from "../controllers/notification.controller.js";
 const router = Router();
 router.use(requireAuth);
 
-router.get('/non-friends', expressAsyncHandler(getNotifications));
+router.get('/', expressAsyncHandler(getNotifications));
 
 export default router;
