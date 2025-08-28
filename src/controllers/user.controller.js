@@ -1,4 +1,4 @@
-import { getAllNonFriendUsersAsync, getNonFriendOnlineUsersAsync } from "../services/user.service.js";
+import { getAllNonFriendUsersAsync, getNonFriendOnlineUsersAsync, getUserByIdAsync } from "../services/user.service.js";
 
 export const getAllNonFriendUsers = async (req, res, next) => {
     const userId = req.user.id;
@@ -14,5 +14,11 @@ export const getNonFriendOnlineUsers = async (req, res, next) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const data = await getNonFriendOnlineUsersAsync(userId, page, limit);
+    res.status(200).json({ data });
+};
+
+export const getMe = async (req, res, next) => {
+    const userId = req.user.id;
+    const data = await getUserByIdAsync(userId);
     res.status(200).json({ data });
 };
