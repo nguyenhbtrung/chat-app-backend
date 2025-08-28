@@ -22,3 +22,9 @@ export const getMe = async (req, res, next) => {
     const data = await getUserByIdAsync(userId);
     res.status(200).json({ data });
 };
+
+export const getUserById = async (req, res, next) => {
+    const userId = req.params.userId;
+    const data = await getUserByIdAsync(userId);
+    res.status(200).json({ data });
+};
