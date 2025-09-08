@@ -1,4 +1,4 @@
-import { createFileRecord } from '../services/file.service.js';
+import { createFileRecord, deleteFileRecordAndPhysical } from '../services/file.service.js';
 import { unlink } from 'fs';
 
 export const uploadSingle = async (req, res, next) => {
@@ -7,11 +7,17 @@ export const uploadSingle = async (req, res, next) => {
 
         const { filename, originalname, size, mimetype } = req.file;
         const data = await createFileRecord({ filename, originalname, size, mimetype });
-        return res.status(201).json({ data });
+        res.status(201).json({ data });
     } catch (error) {
         if (req.file && req.file.path) {
             unlink(req.file.path, () => { });
         }
         next(error);
     }
+};
+
+export const removeFile = async (req, res, next) => {
+    const { fileId } = req.params;
+    await deleteFileRecordAndPhysical(fileId);
+    res.sendStatus(204);
 };
