@@ -4,6 +4,8 @@
 This is a backend API built with **Node.js + Express**, using **Sequelize ORM** with **MySQL** as the database.  
 The system supports real-time messaging with **Socket.IO**, authentication with **JWT**, file uploads with **Multer**, and environment configuration with **dotenv**.
 
+Frontend repository: [chat-app-frontend](https://github.com/nguyenhbtrung/chat-app-frontend)
+
 ---
 
 ## 🚀 Tech Stack
@@ -71,7 +73,7 @@ UPLOADS_ROOT=uploads
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/chat-app-backend.git
+git clone https://github.com/nguyenhbtrung/chat-app-backend.git
 cd chat-app-backend
 ```
 
@@ -111,7 +113,6 @@ Server will run at:
 ```bash
 npm run dev                      # Start server with nodemon
 npm start                        # Start server normally
-npm run lint                     # Run ESLint with --fix option
 npx sequelize-cli db:migrate     # Run migrations
 npx sequelize-cli db:migrate:undo # Rollback last migration
 ```
@@ -149,6 +150,8 @@ npx sequelize-cli db:migrate:undo # Rollback last migration
 ---
 
 ## 🌐 Client Integration
+
+The frontend application is available at: [chat-app-frontend](https://github.com/nguyenhbtrung/chat-app-frontend)
 
 The frontend is expected to run at:
 [http://localhost:5173](http://localhost:5173) (configured in `.env`).
