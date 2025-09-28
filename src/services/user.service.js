@@ -105,3 +105,20 @@ export const getNonFriendOnlineUsersAsync = async (userId, page = 1, limit = 10)
 
     return nonFriendOnlineUsers;
 };
+
+export const getUserByIdAsync = async (userId) => {
+    return await User.findByPk(userId, {
+        attributes: [
+            'id',
+            'userName',
+            'displayName',
+            'email',
+            [col('avatar.url'), 'avatarUrl']
+        ],
+        include: {
+            model: File,
+            as: 'avatar',
+            attributes: [],
+        }
+    });
+};
